@@ -1,0 +1,41 @@
+{
+  "provenance": "SYNTHETIC: internal normalized contract only; NOT a LeetCode response",
+  "context": {
+    "sourceUrl": "https://leetcode.com/company/example/?favoriteSlug=example-range-a",
+    "company": {
+      "slug": "example",
+      "name": "Example"
+    },
+    "recency": {
+      "raw": "example-range-a",
+      "label": "Synthetic range A",
+      "days": null
+    }
+  },
+  "problems": [
+    {
+      "leetcodeId": "internal-a",
+      "frontendId": "001",
+      "title": "Synthetic Problem A",
+      "slug": "synthetic-a",
+      "url": "https://leetcode.com/problems/synthetic-a/",
+      "difficulty": "Easy",
+      "topics": [
+        "Synthetic Topic"
+      ],
+      "rank": 1,
+      "frequency": "raw: high"
+    },
+    {
+      "leetcodeId": "internal-b",
+      "frontendId": "002",
+      "title": "Synthetic Problem B",
+      "slug": "synthetic-b",
+      "url": "https://leetcode.com/problems/synthetic-b/",
+      "difficulty": "Medium",
+      "topics": [],
+      "rank": null,
+      "frequency": null
+    }
+  ]
+}

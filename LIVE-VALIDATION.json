@@ -1,0 +1,40 @@
+{
+  "artifact": "examples/google-thirty-days.live.complete.json",
+  "sha256": "d2eb1d3fe0f83774457c754ca23ea716dbb79af4693bb62f320de006dc79244a",
+  "provenance": "User-provided actual extension export; locally schema-validated and cross-checked against prior response and observed DOM. Not a simulated fixture.",
+  "extractionId": "6e0fa995-2c22-42b9-9c09-f52be00efec4",
+  "extractedAt": "2026-09-17T04:25:36.465Z",
+  "schemaValidation": "passed",
+  "expectedTotal": 152,
+  "extractedCount": 152,
+  "uniqueInternalIds": 152,
+  "uniqueSlugs": 152,
+  "missingRequired": 0,
+  "missingTopics": 1,
+  "topicsCovered": 151,
+  "first100ComparedToSuppliedResponse": "IDs/order/title/slug/topics match",
+  "firstMiddleLastComparedToObservedDom": {
+    "indicesOneBased": [
+      1,
+      77,
+      152
+    ],
+    "ids": [
+      "1",
+      "162",
+      "122"
+    ],
+    "result": "match"
+  },
+  "notVerified": [
+    "Google 3 months full extension export",
+    "Popup close and reopen during an actual run",
+    "Actual worker suspension/restart",
+    "Direct inspection of skip=100 network response"
+  ],
+  "followUpUserFeedback": {
+    "date": "2026-09-17",
+    "version": "0.2.1",
+    "result": "User reports 30 days and 3 months extraction now work after switching recency. No 3 months export file supplied for independent schema validation."
+  }
+}

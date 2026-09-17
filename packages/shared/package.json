@@ -1,0 +1,5 @@
+{
+  "name": "@poc/shared",
+  "private": true,
+  "type": "module"
+}

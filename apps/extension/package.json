@@ -1,0 +1,5 @@
+{
+  "name": "@poc/extension",
+  "private": true,
+  "type": "module"
+}
