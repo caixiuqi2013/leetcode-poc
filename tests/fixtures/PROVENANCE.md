@@ -1,4 +1,13 @@
-# 真实样本
-`google-thirty-days.page1.json` 来自用户本次提供的真实响应 data 部分，skip=0、limit=100、totalLength=152、hasMore=true。100 条中 1 条 topics 为空。仅保留题目字段，删除 status、isInMyFavorites、paidOnly、acRate、contestPoint、__typename 等无关字段；不复制用户解题进度。
-请求来源为用户观察的 POST https://leetcode.com/graphql/，operationName=favoriteQuestionList。不是扩展现场抓取，也不是完整集合。
-`synthetic.json` 为上一版内部契约合成样本。测试中所有其他变体均为合成。
+# Fixture provenance
+
+`google-thirty-days.page1.json` is a sanitized user-supplied real response:
+skip=0, limit=100, totalLength=152, hasMore=true. One of the 100 rows has no topics.
+Only problem and pagination fields remain; status, isInMyFavorites, paidOnly,
+acRate, contestPoint and __typename were removed. No personal completion is retained.
+The user observed POST https://leetcode.com/graphql/ with favoriteQuestionList.
+This is a supplied first page, not a complete extension capture.
+
+`synthetic.json` is an explicitly synthetic contract fixture. Other transformed
+response envelopes and non-Google page harnesses in tests are synthetic too.
+The checked-in full real export is version 0.2.0; a version-0.4 compatibility test
+modifies its metadata and is not a separately observed real export.

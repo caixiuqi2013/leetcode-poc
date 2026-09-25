@@ -1,0 +1,10 @@
+node_modules
+.next
+apps/extension/dist
+pnpm-lock.yaml
+TEST-RESULTS.txt
+examples
+tests/fixtures/*.json
+LIVE-VALIDATION.json
+
+apps/web/next-env.d.ts

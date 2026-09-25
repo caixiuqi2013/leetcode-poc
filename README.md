@@ -1,89 +1,110 @@
-# LeetCode 公司题单 POC 0.4.0
+# LeetByCompany
 
-支持 Google 的30 days、3 months、6 months、More than 6 months和All。**现在可在页面任何滚动位置提取，无需提前加载题目行，也不会替用户自动滚动。**
+**Practice LeetCode by company.**
 
-提取语义明确为**完整 company + recency 题单**：忽略页面额外的搜索、难度/topic等筛选和排序，接口使用已观察到的空额外筛选与CUSTOM_ASCENDING排序。不会把当前可见行当作结果集合。面板与JSON中的`scope`均说明这一语义。
+Repository: [caixiuqi2013/leet-by-company](https://github.com/caixiuqi2013/leet-by-company).
 
-30 days实际152题导出已验证；用户已反馈0.2.1的30 days/3 months切换提取正常。0.4.0无滚动行为已通过模拟回归，仍需实际Chrome复测。
+LeetByCompany combines a manually opened Chrome extension with a Next.js practice
+website. Build the complete company + recency list you are authorized to view
+with one click from the extension. Progress follows each problem across
+companies, ranges, and historical list versions.
 
-## 安装、升级与操作
+## Current delivery: 0.5.1
 
-1. chrome://extensions → Load unpacked，选择`apps/extension/dist`，或旁边独立的`chrome-extension`目录。
-2. 已安装时点Reload，确认0.4.0，再刷新LeetCode一次，替换旧版content script。
-3. 在Google公司页选好recency，在顶部、中部或底部都可打开扩展并点击Extract problems。不必清空搜索/其他筛选；这些条件不应用于导出。
-4. 刚切换范围、页面标题/下拉框尚未就绪时，会等待最多10秒；期间换到另一个范围则中止。
-5. 可关闭popup，普通点击与滚动不取消任务。提取时不要改变公司/recency；发生实际范围变化会取消。Cancel仍可随时停止请求。
-6. 提取结束后查看API总数、唯一题数、complete/partial与topics覆盖；Export JSON保存结果。Retry开始新任务。
+- React/TypeScript Manifest V3 extension with paginated extraction, cancellation,
+  source-count validation, local checkpoints, JSON export and website handoff.
+- Next.js/TypeScript/Tailwind website with automatic list building, Google OAuth routes,
+  invitation checks, personal company navigation, topic/difficulty/completion
+  filters, progress, version history and explicitly accepted shared updates.
+- Supabase PostgreSQL migration with atomic imports, immutable snapshots,
+  user-scoped idempotency and restricted server-only data access.
 
-## 构建与测试
+**This is an implemented local release, not a deployed service.** Configure
+Supabase and Google OAuth before saving imports. The building page reports setup or login requirements clearly;
+no mock persistence is presented as successful storage. See [validation](VALIDATION.md)
+for tested behavior and outstanding live checks.
 
-Node24.19.0、pnpm11.19.0，版本及锁文件已固定。
+## Develop
+
+Use Node 22+ (this session used Node 24) and pnpm. From the repository root:
 
 ```sh
-pnpm install --frozen-lockfile --ignore-scripts
+pnpm install --frozen-lockfile
+pnpm format:check
+pnpm lint
 pnpm typecheck
 pnpm build
 pnpm test
-pnpm validate examples/google-thirty-days.live.complete.json
+pnpm build:web
+pnpm dev:web
 ```
 
-测试使用构建产物，先build。实际测试输出在TEST-RESULTS.txt。`node --import tsx scripts/replay-sample.ts`可重建仅100条的离线部分示例，不是现场提取。
+`pnpm build` builds the extension. Tests consume that build. `pnpm test` includes
+embedded PostgreSQL migration tests; the independent-connection contention test
+requires a disposable localhost PostgreSQL server (see deployment documentation).
 
-## 来源、范围与完整性
+Copy `apps/web/.env.example` to `apps/web/.env.local`, then supply your own project
+configuration. Never commit a service key. [Deployment guide](docs/deployment.md)
+explains the migration, invitations, OAuth and Vercel setup. No remote migration
+or production deployment was performed during implementation.
 
-真实来源为用户提供的POST https://leetcode.com/graphql/、operationName=favoriteQuestionList。content script在隔离世界用既有同源会话主动请求，每次100条，按实际行数推进skip直到hasMore=false。一次一个请求，15秒超时，最多1000页，不自动重试429或访问拒绝。
+## Chrome extension
 
-`complete`要求已验证的来源/ID映射、分页结束、总数稳定、唯一题数等于已知总数、没有无效必需字段/冲突/失败；**与DOM题目数量、滚动位置或页面额外排序无关**。0条只有在响应明确totalLength=0、hasMore=false且结构正常时才是真空结果。失败或权限拒绝不能伪装成空结果。
+1. Open `chrome://extensions`, enable Developer mode, and Load unpacked from
+   `apps/extension/dist` (or the delivered `chrome-extension` folder).
+2. When upgrading, reload the extension and refresh your LeetCode page once.
+3. Select a company and recency on `leetcode.com`. Open the extension manually.
+4. Choose **Build list & start practicing**. The website opens immediately and shows
+   progress while the extension reads the complete list. Keep the source tab open
+   with the same company and recency; scrolling is not required.
+5. The website saves the completed list and opens organized practice automatically.
+   If sign-in is required, the pending list resumes after login. No file upload or
+   second build click is needed. Export JSON remains available as an optional backup.
 
-题目以内部id去重，questionFrontendId独立作为字符串保存。topics来自topicTags.name；缺少为[]，不猜分类。frequency保留原值、不解释单位；rank=null，不以数组位置编造排名。topics覆盖率独立于题目集合完整性。
+The default development build trusts **only `http://localhost:3000`**. For a deployed
+site, rebuild with `LEETBYCOMPANY_WEB_ORIGIN=https://your-exact-host pnpm build`.
+The Chrome manifest restricts the host and the worker additionally checks exact
+origin, port, `/import`, top-level sender, random import ID and expiry. The extension
+never opens automatically on company pages. No cookies or LeetCode credentials
+are transferred.
 
-| recency label | favoriteSlug | days |
-|---|---|---|
-| 30 days | google-thirty-days | 30 |
-| 3 months | google-three-months | null |
-| 6 months | google-six-months | null |
-| More than 6 months | google-more-than-six-months | null |
-| All | google-all | null |
+## Source compatibility
 
-所有映射均观察过真实页面。每个范围独立读取，不从其他范围合并、相减或推导。只支持Google当前五个已确认范围，未知范围失败关闭。
+The adapter reads the current favorite slug; it does not crawl companies or
+construct arbitrary source lists. Supported canonical labels are 30 days,
+3 months, 6 months, More than 6 months, and All. Month ranges have `days: null`.
+Unknown ranges fail closed. `leetcode.cn` is out of scope.
 
-0.4.0新增导出字段：
+All companies use heading/URL/visible-recency checks. Rendered company problem
+links must also corroborate the current scope, but absent rows do not block
+extraction. This is conservative: unusual name/slug aliases may return
+`context-not-ready`. Do not interpret
+this release as live verification of every company. Goldman Sachs and Amazon have
+simulated regression coverage; live non-Google extraction remains pending.
 
-```json
-"scope": {
-  "kind": "company-recency",
-  "pageFiltersApplied": false,
-  "pageSortApplied": false,
-  "sort": "CUSTOM_ASCENDING"
-}
-```
+Original order is preserved; array position is not source rank. Frequency is
+uninterpreted source data. Missing topics display as **Uncategorized**. Counts
+and completion summaries count distinct problems, even with overlapping topics.
 
-schemaVersion维持1.0，extractorVersion标明0.4.0；共享schema继续接受旧版文件，但0.4.0文件必须带scope。将来若实现“完全遵循页面额外筛选”，应新增明确模式及契约，不混用此结果。
+## Data and version behavior
 
-## 架构与恢复
+Complete imports create immutable snapshots and select that snapshot for the
+importer. Only a newer `extractedAt` advances the shared pointer. Older imports
+remain usable personally; other users do not change automatically. Equal-time
+conflicting content returns a warning and leaves the existing shared winner.
+“Update list” accepts an explicit newer snapshot, preserving progress and history.
+“Not now” only dismisses the current view's prompt.
 
-- popup：React界面、状态、预览、schema验证后下载。
-- worker：任务协调；chrome.storage.local每页checkpoint；扩展sender、顶层tab、documentId、任务ID和实时tabs.get URL校验。
-- content：DOM只确认公司与recency，负责同源分页；等待页面就绪；MutationObserver、每页上下文检查和心跳防止范围改变。不访问页面JS私有缓存，不假定可以读取过去网络响应。
-- shared：类型/schema、recency映射、来源转换、分页引擎和就绪等待。
-- web：只保留workspace位置，不实现网站、账号、数据库或部署。
+Schema 1.0 accepts extractor 0.x semantic versions, with explicit scope required
+from 0.4 onward. Unknown major/schema versions are rejected. Existing 0.2 exports
+remain readable. Client timestamps and evidence flags are not provenance proofs.
+Partial/unknown exports may be downloaded for diagnosis but cannot be imported.
 
-worker休眠后可由内容消息唤醒并从storage读取任务；超过15秒无心跳时重新打开popup标记interrupted，用户Retry。浏览器冻结标签页可能保守中断；不承诺断点续传。页面关闭保留partial checkpoint，主动取消/范围改变清除本次结果，旧结果不能覆盖新任务。
+## Learn the implementation
 
-## 权限与隐私
-
-仅activeTab、scripting、storage，无全站host、Cookie、debugger、webRequest权限。不读取/复制凭证，不传到外部服务器。只发送所需列表请求，不请求status/isInMyFavorites等个人进度。导出使用字段白名单，sourceUrl只保留公司路径和favoriteSlug。
-
-## 排错
-
-- unsupported-scope：尚不支持该公司/范围。
-- context-not-ready：页面10秒内未显示与URL一致的公司/范围，待页面就绪后Retry。
-- cancelled：当前公司/recency变化或用户Cancel，防止混合结果。
-- no-access：HTTP401/403，确认页面自身可访问，不需要发送凭证。
-- rate-limited：稍后手动Retry。
-- read-failed：超时、网络、GraphQL错误、非JSON或schema变化；已有结果仅partial。
-- interrupted：任务失联/标签页冻结；Retry。
-
-以前的DOM_SCOPE_UNVERIFIED/“滚动到底”限制只属于0.3.0及更早版本。若还看到该提示，检查版本并刷新来源页一次。
-
-[验证报告](VALIDATION.md)区分真实样本、用户反馈与模拟测试；[真实导出校验](LIVE-VALIDATION.json)对应原样保存的0.2.0真实152题文件。
+- [Requirements](docs/requirements.md)
+- [Architecture and database](docs/architecture.md)
+- [API contract](docs/api.md)
+- [Codebase guide](docs/codebase-guide.md)
+- [Deployment and verification setup](docs/deployment.md)
+- [Session handoff](handoff.md)

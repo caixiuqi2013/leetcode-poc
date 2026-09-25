@@ -1,2 +1,7 @@
-# Reserved web workspace
-本次不实现网站、账号或数据库。未来导入端应使用 shared schema，且仅接受 complete 和符合字段覆盖率政策的结果。
+# LeetByCompany website
+
+Next.js + TypeScript + Tailwind, with server-side Supabase authentication and RPCs.
+Run `pnpm dev:web` from the repository root. The extension opens `/import` immediately
+and the page shows extraction/saving progress before opening organized practice.
+Saving requires `.env.local` and the reviewed migration. See
+[deployment instructions](../../docs/deployment.md) and [codebase guide](../../docs/codebase-guide.md).
